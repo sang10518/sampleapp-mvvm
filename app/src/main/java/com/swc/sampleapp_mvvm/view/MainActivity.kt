@@ -7,8 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.swc.sampleapp_mvvm.view.custom.PostScreen
+import com.swc.sampleapp_mvvm.view.custom.SensorScreen
 import com.swc.sampleapp_mvvm.view.custom.WeatherScreen
 import com.swc.sampleapp_mvvm.viewmodel.PostViewModel
+import com.swc.sampleapp_mvvm.viewmodel.SensorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,10 +23,14 @@ class MainActivity : ComponentActivity() {
 //            // Call fetchWeather with your API key
 //            weatherViewModel.fetchWeather("London", "abc123456def7890ghijklmnopqrs") // Replace with your API key
 //            WeatherScreen(weatherViewModel)
-            val postViewModel: PostViewModel = viewModel()
-            // Call fetchWeather with your API key
-            postViewModel.fetchPosts() // Replace with your API key
-            PostScreen(postViewModel)
+//            val postViewModel: PostViewModel = viewModel()
+//            // Call fetchWeather with your API key
+//            postViewModel.fetchPosts() // Replace with your API key
+//            PostScreen(postViewModel)
+            val sensorViewModel: SensorViewModel = viewModel()
+            SensorScreen(sensorViewModel)
+
+
         }
 
 
