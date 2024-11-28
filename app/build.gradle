@@ -56,6 +56,8 @@ dependencies {
     implementation "androidx.compose.compiler:compiler:1.5.0" // Update to a compatible version
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.25"
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2" // or the latest version
