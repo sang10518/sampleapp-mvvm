@@ -1,9 +1,10 @@
 package com.swc.sampleapp_mvvm.viewmodel
 
 
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.swc.sampleapp_mvvm.model.WeatherResponse
+import com.swc.sampleapp_mvvm.model.remote.WeatherResponse
 import com.swc.sampleapp_mvvm.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

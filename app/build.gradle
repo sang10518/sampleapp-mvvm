@@ -59,6 +59,11 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
 
+    //Room
+    implementation "androidx.room:room-runtime:2.x.x"
+    kapt "androidx.room:room-compiler:2.x.x"
+    implementation "androidx.room:room-ktx:2.x.x" // For Kotlin Coroutines support
+
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2" // or the latest version
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
@@ -73,6 +78,11 @@ dependencies {
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    //Glide
+    implementation "com.github.bumptech.glide:glide:4.15.1"
+    implementation "com.github.bumptech.glide:compose:1.0.0-beta01"
+    kapt "com.github.bumptech.glide:compiler:4.15.1"
 
     // Activity KTX for viewModels()
     implementation 'androidx.activity:activity-ktx:1.8.0'

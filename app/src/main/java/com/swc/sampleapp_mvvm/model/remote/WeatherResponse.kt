@@ -1,4 +1,4 @@
-package com.swc.sampleapp_mvvm.model
+package com.swc.sampleapp_mvvm.model.remote
 
 data class WeatherResponse(
     val name: String,

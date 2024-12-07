@@ -1,7 +1,7 @@
 package com.swc.sampleapp_mvvm.network
 
-import com.swc.sampleapp_mvvm.model.PostResponse
-import com.swc.sampleapp_mvvm.model.WeatherResponse
+import com.swc.sampleapp_mvvm.model.remote.PostResponse
+import com.swc.sampleapp_mvvm.model.remote.WeatherResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
