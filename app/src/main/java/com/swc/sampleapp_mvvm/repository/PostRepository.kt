@@ -52,11 +52,40 @@ import javax.inject.Singleton
 //    }
 //}
 
+//@Singleton
+//class PostRepository @Inject constructor(
+//    private val apiService: PostApiService
+//) {
+//    suspend fun getPosts(): List<PostResponse> {
+//        return apiService.getPosts()  // This should return a List<PostResponse>
+//    }
+//}
+
 @Singleton
 class PostRepository @Inject constructor(
-    private val apiService: PostApiService
+    private val apiService: PostApiService,
+    private val postDao: PostDao
 ) {
     suspend fun getPosts(): List<PostResponse> {
-        return apiService.getPosts()  // This should return a List<PostResponse>
+        // Try to fetch from the database first
+        val cachedPosts = postDao.getAllPostsOnce()
+
+        // If there are no posts in the DB, fetch from the API
+        return if (cachedPosts.isEmpty()) {
+            val apiPosts = apiService.getPosts()
+
+            // Cache the API result in the DB
+            postDao.insertPosts(apiPosts.map { post ->
+                PostEntity(post.id, 0,  post.title, post.body)
+            })
+
+            apiPosts
+        } else {
+            // Map the cached posts from DB to PostResponse
+            cachedPosts.map { postEntity ->
+                PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+            }
+        }
     }
 }
+
