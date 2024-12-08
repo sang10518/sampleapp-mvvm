@@ -9,10 +9,12 @@ import com.swc.sampleapp_mvvm.repository.PostRepository
 import com.swc.sampleapp_mvvm.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import javax.inject.Inject
 
 //@HiltViewModel
@@ -50,12 +52,21 @@ class PostsViewModel @Inject constructor(
 
     fun fetchPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Get the list of posts from the repository
-                val posts = repository.getPosts()
+            // Step 1: Load cached posts first and emit them to the UI
+            val cachedPosts = repository.getCachedPosts()  // Assuming this method fetches posts from the DB
+            if (cachedPosts.isNotEmpty()) {
                 withContext(Dispatchers.Main) {
-                    _postsState.value = UiState.Success(posts)  // Return the list of posts on success
+                    _postsState.value = UiState.Success(cachedPosts)
                 }
+            }
+
+            // Step 2: Fetch fresh data from the API and emit the updated posts
+            try {
+                val apiPosts = repository.getPosts()
+                withContext(Dispatchers.Main) {
+                    _postsState.value = UiState.Success(apiPosts)  // Emit fresh data from the API
+                }
+
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _postsState.value = UiState.Error(e.message ?: "An unknown error occurred")

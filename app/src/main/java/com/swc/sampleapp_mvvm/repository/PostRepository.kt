@@ -3,11 +3,15 @@ package com.swc.sampleapp_mvvm.repository
 
 import com.swc.sampleapp_mvvm.model.local.PostDao
 import com.swc.sampleapp_mvvm.model.local.PostEntity
+import com.swc.sampleapp_mvvm.model.local.toEntityList
 import com.swc.sampleapp_mvvm.model.remote.PostResponse
 import com.swc.sampleapp_mvvm.network.PostApiService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -66,25 +70,50 @@ class PostRepository @Inject constructor(
     private val apiService: PostApiService,
     private val postDao: PostDao
 ) {
-    suspend fun getPosts(): List<PostResponse> {
-        // Try to fetch from the database first
+//    suspend fun getPosts(): List<PostResponse> {
+//        // Try to fetch from the database first
+//        val cachedPosts = postDao.getAllPostsOnce()
+//
+//        // If there are no posts in the DB, fetch from the API
+//        return if (cachedPosts.isEmpty()) {
+//            val apiPosts = apiService.getPosts()
+//
+//            // Cache the API result in the DB
+//            postDao.insertPosts(apiPosts.map { post ->
+//                PostEntity(post.id, 0,  post.title, post.body)
+//            })
+//
+//            apiPosts
+//        } else {
+//            // Map the cached posts from DB to PostResponse
+//            cachedPosts.map { postEntity ->
+//                PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+//            }
+//        }
+//    }
+    suspend fun getCachedPosts(): List<PostResponse> {
         val cachedPosts = postDao.getAllPostsOnce()
+        return cachedPosts.map { postEntity ->
+            PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+        }
+    }
 
-        // If there are no posts in the DB, fetch from the API
-        return if (cachedPosts.isEmpty()) {
-            val apiPosts = apiService.getPosts()
+    suspend fun getPosts(): List<PostResponse> {
+        val apiPosts = apiService.getPosts()
+//        postDao.insertPosts(apiPosts.map { post ->
+//            PostEntity(post.id, 0, post.title, post.body)
+//        })
+        insertIfChanged(apiPosts.toEntityList())
+        return apiPosts
+    }
 
-            // Cache the API result in the DB
-            postDao.insertPosts(apiPosts.map { post ->
-                PostEntity(post.id, 0,  post.title, post.body)
-            })
-
-            apiPosts
-        } else {
-            // Map the cached posts from DB to PostResponse
-            cachedPosts.map { postEntity ->
-                PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
-            }
+    private suspend fun insertIfChanged(newPosts: List<PostEntity>) {
+        val existingPosts = postDao.getAllPostsOnce() // Assuming this fetches all posts
+        val postsToInsert = newPosts.filter { newPost ->
+            existingPosts.none { it.id == newPost.id && it == newPost }
+        }
+        if (postsToInsert.isNotEmpty()) {
+            postDao.insertPosts(postsToInsert)
         }
     }
 }
