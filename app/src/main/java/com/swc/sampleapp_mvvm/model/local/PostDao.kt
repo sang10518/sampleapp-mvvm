@@ -9,7 +9,7 @@ import androidx.room.Query
 interface PostDao {
 
     @Query("SELECT * FROM posts ORDER BY id ASC")
-    fun getAllPostsOnce(): List<PostEntity> // Fetch posts synchronously for StateFlow
+    suspend fun getAllPostsOnce(): List<PostEntity> // Fetch posts synchronously for StateFlow
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPosts(posts: List<PostEntity>)
