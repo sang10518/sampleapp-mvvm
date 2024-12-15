@@ -6,12 +6,15 @@ import com.swc.sampleapp_mvvm.model.local.PostEntity
 import com.swc.sampleapp_mvvm.model.local.toEntityList
 import com.swc.sampleapp_mvvm.model.remote.PostResponse
 import com.swc.sampleapp_mvvm.network.PostApiService
+import com.swc.sampleapp_mvvm.network.TimeoutException
+import com.swc.sampleapp_mvvm.network.TimeoutType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -115,6 +118,10 @@ class PostRepository @Inject constructor(
             val apiPosts = apiService.getPosts()
             insertIfChanged(apiPosts.toEntityList())
             Result.success(apiPosts)
+        } catch (e: SocketTimeoutException) {
+            // Catch timeout exception and throw custom exception
+//            throw TimeoutException("Request timed out", TimeoutType.CONNECTION_TIMEOUT)
+            Result.failure(e)
         } catch (e: Exception) {
             Result.failure(e)
         }
