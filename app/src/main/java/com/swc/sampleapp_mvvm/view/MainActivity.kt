@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.swc.sampleapp_mvvm.R
 import com.swc.sampleapp_mvvm.view.custom.PostsScreen
 import com.swc.sampleapp_mvvm.view.custom.WeatherScreen
 import com.swc.sampleapp_mvvm.viewmodel.PostsViewModel
@@ -26,6 +27,8 @@ class MainActivity : ComponentActivity() {
             postsViewModel.fetchPosts() // Replace with your API key
             PostsScreen(postsViewModel)
         }
+
+//        setContentView(R.layout.activity_main)
 
 
     }

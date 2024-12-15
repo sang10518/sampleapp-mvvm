@@ -71,6 +71,7 @@ fun PostsScreen(viewModel: PostsViewModel) {
         }
         is UiState.Success -> {
             val posts = (postsState as UiState.Success).data as List<PostResponse>
+
             LazyColumn {
                 itemsIndexed(posts) { index, post ->
                     PostItem(

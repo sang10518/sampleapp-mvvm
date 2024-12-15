@@ -1,4 +1,4 @@
-package com.swc.sampleapp_mvvm
+package com.swc.sampleapp_mvvm.util
 
 import android.content.Context
 import com.bumptech.glide.GlideBuilder

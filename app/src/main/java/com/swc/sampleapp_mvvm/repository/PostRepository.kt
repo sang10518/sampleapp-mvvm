@@ -91,22 +91,53 @@ class PostRepository @Inject constructor(
 //            }
 //        }
 //    }
-    suspend fun getCachedPosts(): List<PostResponse> {
-        val cachedPosts = postDao.getAllPostsOnce()
-        return cachedPosts.map { postEntity ->
-            PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+//    suspend fun getCachedPosts(): List<PostResponse> {
+//        val cachedPosts = postDao.getAllPostsOnce()
+//        return cachedPosts.map { postEntity ->
+//            PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+//        }
+//    }
+
+//    suspend fun getPosts(): List<PostResponse> {
+//        val apiPosts = apiService.getPosts()
+////        postDao.insertPosts(apiPosts.map { post ->
+////            PostEntity(post.id, 0, post.title, post.body)
+////        })
+//        insertIfChanged(apiPosts.toEntityList())
+//        return apiPosts
+//    }
+
+    /**
+     * Fetch posts from the API and cache them locally. Returns a Result wrapping the list of posts.
+     */
+    suspend fun getPosts(): Result<List<PostResponse>> {
+        return try {
+            val apiPosts = apiService.getPosts()
+            insertIfChanged(apiPosts.toEntityList())
+            Result.success(apiPosts)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
-    suspend fun getPosts(): List<PostResponse> {
-        val apiPosts = apiService.getPosts()
-//        postDao.insertPosts(apiPosts.map { post ->
-//            PostEntity(post.id, 0, post.title, post.body)
-//        })
-        insertIfChanged(apiPosts.toEntityList())
-        return apiPosts
+    /**
+     * Fetch posts from the local cache. Returns a Result wrapping the list of cached posts.
+     */
+    suspend fun getCachedPosts(): Result<List<PostResponse>> {
+        return try {
+            val cachedPosts = postDao.getAllPostsOnce()
+            val postResponses = cachedPosts.map { postEntity ->
+                PostResponse(0, postEntity.id, postEntity.title, postEntity.body)
+            }
+            Result.success(postResponses)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
+    /**
+     * Insert new posts into the local database if they have changed.
+     */
     private suspend fun insertIfChanged(newPosts: List<PostEntity>) {
         val existingPosts = postDao.getAllPostsOnce() // Assuming this fetches all posts
         val postsToInsert = newPosts.filter { newPost ->

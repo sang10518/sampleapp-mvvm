@@ -42,6 +42,44 @@ import javax.inject.Inject
 //    }
 //}
 
+//@HiltViewModel
+//class PostsViewModel @Inject constructor(
+//    private val repository: PostRepository
+//) : ViewModel() {
+//
+//    private val _postsState = MutableStateFlow<UiState<List<PostResponse>>>(UiState.Loading)
+//    val postsState: StateFlow<UiState<List<PostResponse>>> = _postsState
+//
+//    fun fetchPosts() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            // Step 1: Load cached posts first and emit them to the UI
+//            val cachedPosts = repository.getCachedPosts()  // Assuming this method fetches posts from the DB
+//            if (cachedPosts.isNotEmpty()) {
+//                withContext(Dispatchers.Main) {
+//                    _postsState.value = UiState.Success(cachedPosts)
+//                }
+//            }
+//
+//            // Step 2: Fetch fresh data from the API and emit the updated posts
+//            try {
+//                val apiPosts = repository.getPosts()
+//                withContext(Dispatchers.Main) {
+//                    _postsState.value = UiState.Success(apiPosts)  // Emit fresh data from the API
+//                }
+//
+//            } catch (e: Exception) {
+//                withContext(Dispatchers.Main) {
+//                    _postsState.value = UiState.Error(e.message ?: "An unknown error occurred")
+//                }
+//            }
+//        }
+//    }
+//
+//    fun onPostClicked(post: PostResponse, index: Int) {
+//        Log.e("swc", "post ${post.title} clicked, at index $index")
+//    }
+//}
+
 @HiltViewModel
 class PostsViewModel @Inject constructor(
     private val repository: PostRepository
@@ -50,31 +88,39 @@ class PostsViewModel @Inject constructor(
     private val _postsState = MutableStateFlow<UiState<List<PostResponse>>>(UiState.Loading)
     val postsState: StateFlow<UiState<List<PostResponse>>> = _postsState
 
+    /**
+     * Fetch posts by first loading cached posts and then updating with fresh data from the API.
+     */
     fun fetchPosts() {
         viewModelScope.launch(Dispatchers.IO) {
             // Step 1: Load cached posts first and emit them to the UI
-            val cachedPosts = repository.getCachedPosts()  // Assuming this method fetches posts from the DB
-            if (cachedPosts.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    _postsState.value = UiState.Success(cachedPosts)
+            repository.getCachedPosts().fold(
+                onSuccess = { cachedPosts ->
+                    if (cachedPosts.isNotEmpty()) {
+                        _postsState.value = UiState.Success(cachedPosts)
+//                        _postsState.emit(UiState.Success(cachedPosts))
+                    }
+                },
+                onFailure = { exception ->
+                    _postsState.value = (UiState.Error(exception.localizedMessage ?: "Error loading cached posts"))
                 }
-            }
+            )
 
             // Step 2: Fetch fresh data from the API and emit the updated posts
-            try {
-                val apiPosts = repository.getPosts()
-                withContext(Dispatchers.Main) {
-                    _postsState.value = UiState.Success(apiPosts)  // Emit fresh data from the API
+            repository.getPosts().fold(
+                onSuccess = { apiPosts ->
+                    _postsState.value = (UiState.Success(apiPosts))
+                },
+                onFailure = { exception ->
+                    _postsState.value = (UiState.Error(exception.localizedMessage ?: "Error fetching posts from API"))
                 }
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _postsState.value = UiState.Error(e.message ?: "An unknown error occurred")
-                }
-            }
+            )
         }
     }
 
+    /**
+     * Handle post click events.
+     */
     fun onPostClicked(post: PostResponse, index: Int) {
         Log.e("swc", "post ${post.title} clicked, at index $index")
     }
