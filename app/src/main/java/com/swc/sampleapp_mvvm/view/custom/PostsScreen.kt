@@ -63,7 +63,8 @@ import com.swc.sampleapp_mvvm.viewmodel.PostsViewModel
 
 @Composable
 fun PostsScreen(viewModel: PostsViewModel) {
-    val postsState by viewModel.postsState.collectAsState()
+//    val postsState by viewModel.postsState.collectAsState()
+    val postsState = viewModel.postsState.collectAsState().value
 
     when (postsState) {
         is UiState.Loading -> {
